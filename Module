@@ -3,11 +3,11 @@
 # ( o.o )  🔓 Not licensed.
 #  > ^ <   ⚠️ Owner of heta.hikariatama.ru doesn't take any responsibilities or intellectual property rights regarding this script
 # ---------------------------------------------------------------------------------
-# Name: BFGFarmer
+# Name: AKFarmer
 # Description: Send mes
 # Author: @Tirandomperson
 # Commands:
-# .bfs | .bfsf | .bfn | .bfnf
+# .akon | .akoff
 # ---------------------------------------------------------------------------------
 
 
@@ -15,43 +15,51 @@
 
 from asyncio import sleep
 
+from telethon import events
 from .. import loader, utils
 
 
-class BFGMod(loader.Module):
+class AKFarmer(loader.Module):
     """Send mes"""
-
-    strings = {"name": "BFGFarmer"}
 
     async def client_ready(self, client, db):
         self.db = db
+        self.client = client
 
-    async def bbtoncmd(self, message):
-        """ """
-        status = self.db.set("BFGFarmer", "status1", True)
-        await utils.answer(message, "<b>✅Запущено</b>")
-        while status:
-            await sleep(60 * 50)
-            if not self.db.get("BFGFarmer", "status1"):
-                return
-            await message.respond("Собрать снежинки")
+    async def akoncmd(self, message):
+        """Включить фарм"""
+        if not self.db.get("AKFarmer", "status1", False):
+            self.db.set("AKFarmer", "status1", True)
+            await utils.answer(message, "<b>✅ Запущено</b>")
+            while self.db.get("AKFarmer", "status1", False):
+                await sleep(60 * 60 * 4)
+                await message.respond("Получить карту")
+        else:
+            await utils.answer(message, "<b>⚠️ Фарм уже запущен</b>")
 
-    async def bbtoffcmd(self, message):
-        """ """
-        self.db.set("BFGFarmer", "status1", False)
-        await utils.answer(message, "<b>❌Остановлено</b>")
+    async def akoffcmd(self, message):
+        """Выключить фарм"""
+        if self.db.get("AKFarmer", "status1", False):
+            self.db.set("AKFarmer", "status1", False)
+            await utils.answer(message, "<b>❌ Остановлено</b>")
+        else:
+            await utils.answer(message, "<b>⚠️ Фарм не запущен</b>")
 
-    async def bfgoncmd(self, message):
-        """ """
-        status = self.db.set("BFGFarmer", "status2", True)
-        await utils.answer(message, "<b>✅Запущено</b>")
-        while status:
-            await sleep(60 * 5)
-            if not self.db.get("BFGFarmer", "status2"):
-                return
-            await message.respond("копать изумруды")
+    async def cmd(self, message):
+        """Копать изумруды (каждые 5 минут)"""
+        if not self.db.get("AKFarmer", "status2", False):
+            self.db.set("AKFarmer", "status2", True)
+            await utils.answer(message, "<b>✅ Запущено</b>")
+            while self.db.get("AKFarmer", "status2", False):
+                await sleep(60 * 5)
+                await self.client.send_message(message.to_id, "копать изумруды")
+        else:
+            await utils.answer(message, "<b>⚠️ Фарм уже запущен</b>")
 
-    async def bfgoffcmd(self, message):
-        """ """
-        self.db.set("BFGFarmer", "status2", False)
-        await utils.answer(message, "<b>❌Остановлено</b>")
+    async def cmdoff(self, message):
+        """Остановить фарм изумрудов"""
+        if self.db.get("AKFarmer", "status2", False):
+            self.db.set("AKFarmer", "status2", False)
+            await utils.answer(message, "<b>❌ Остановлено</b>")
+        else:
+            await utils.answer(message, "<b>⚠️ Фарм не запущен</b>")
