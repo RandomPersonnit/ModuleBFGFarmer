@@ -7,7 +7,7 @@
 # Description: Send mes
 # Author: @Tirandomperson
 # Commands:
-# .bbton | .bbtoff | .bfgon | .bfgoff
+# .bfs | .bfsf | .bfn | .bfnf
 # ---------------------------------------------------------------------------------
 
 
@@ -29,7 +29,7 @@ class BFGMod(loader.Module):
     async def bbtoncmd(self, message):
         """ """
         status = self.db.set("BFGFarmer", "status1", True)
-        await utils.answer(message, "<b>Запущено</b>")
+        await utils.answer(message, "<b>✅Запущено</b>")
         while status:
             await sleep(60 * 50)
             if not self.db.get("BFGFarmer", "status1"):
@@ -39,12 +39,12 @@ class BFGMod(loader.Module):
     async def bbtoffcmd(self, message):
         """ """
         self.db.set("BFGFarmer", "status1", False)
-        await utils.answer(message, "<b>Остановлено</b>")
+        await utils.answer(message, "<b>❌Остановлено</b>")
 
     async def bfgoncmd(self, message):
         """ """
         status = self.db.set("BFGFarmer", "status2", True)
-        await utils.answer(message, "<b>Запущено</b>")
+        await utils.answer(message, "<b>✅Запущено</b>")
         while status:
             await sleep(60 * 5)
             if not self.db.get("BFGFarmer", "status2"):
@@ -54,4 +54,4 @@ class BFGMod(loader.Module):
     async def bfgoffcmd(self, message):
         """ """
         self.db.set("BFGFarmer", "status2", False)
-        await utils.answer(message, "<b>Остановлено</b>")
+        await utils.answer(message, "<b>❌Остановлено</b>")
