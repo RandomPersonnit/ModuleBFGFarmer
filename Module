@@ -26,7 +26,7 @@ def register(cb):
     cb(AKFarmerMod())
 
 class AKFarmerMod(loader.Module):
-    """Send messages periodically"""
+    """Модуль для "Получения карт"в @aniversecard_bot """
 
     strings = {"name": "AKFarmer"}
 
@@ -41,7 +41,7 @@ class AKFarmerMod(loader.Module):
                 await message.respond("Получить карту")
 
     async def akoncmd(self, message):
-        """Start the farm"""
+        """Запустить фарм"""
         if not self.db.get("AKFarmer", "status1"):
             self.db.set("AKFarmer", "status1", True)
             self.db.set("AKFarmer", "whitelist", [])
@@ -49,32 +49,14 @@ class AKFarmerMod(loader.Module):
             while self.db.get("AKFarmer", "status1"):
                 if time.time() > self.db.get("AKFarmer", "waituntil", 0):
                     await message.respond("Получить карту")
-                await sleep(60 * 5)
+                await sleep(60 * 60 * 4)
         else:
             await utils.answer(message, "<b>⚠️ Фарм уже запущен</b>")
 
     async def akoffcmd(self, message):
-        """Stop the farm"""
+        """Закончить фарм"""
         if self.db.get("AKFarmer", "status1"):
             self.db.set("AKFarmer", "status1", False)
             await utils.answer(message, "<b>❌ Остановлено</b>")
         else:
             await utils.answer(message, "<b>⚠️ Фарм не запущен</b>")
-
-    async def notifcmd(self, message):
-        """Add a user to the whitelist"""
-        if not self.db.get("AKFarmer", "whitelist", []):
-            self.db.set("AKFarmer", "whitelist", [])
-        for user in message.mentioned:
-            if user.id not in self.db.get("AKFarmer", "whitelist"):
-                self.db.get("AKFarmer", "whitelist").append(user.id)
-        await utils.answer(message, "<b>✔️ Успешно добавлено</b>")
-
-    async def cmds(self, message):
-        """Remove a user from the whitelist"""
-        if not self.db.get("AKFarmer", "whitelist", []):
-            self.db.set("AKFarmer", "whitelist", [])
-        for user in message.mentioned:
-            if user.id in self.db.get("AKFarmer", "whitelist"):
-                self.db.get("AKFarmer", "whitelist").remove(user.id)
-        await utils.answer(message, "<b>✔️ Успешно удалено</b>")
