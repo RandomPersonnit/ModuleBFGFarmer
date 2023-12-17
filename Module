@@ -13,50 +13,75 @@
 
 # meta developer: @Tirandomperson
 
-import time
+import asyncio
+from hikkatl import types
+from telethon import functions, events
 
-from telethon.tl.types import MessageEntityMentionName
-from asyncio import sleep
-
-from telethon import events
 from .. import loader, utils
 
 
-def register(cb):
-    cb(AKFarmerMod())
+@loader.tds
+class SendMessageModule(loader.Module):
+    """Модуль для автоматического получения карт каждые 4 часа в боте @Aniversecard_bot"""
 
-class AKFarmerMod(loader.Module):
-    """Модуль для "Получения карт"в @aniversecard_bot """
+    strings = {"name": "AniverseAuto"}
 
-    strings = {"name": "AKFarmer"}
+    def __init__(self):
+        self.running = False
+        self.success_message = "<b>🏗Успешно запущено<b>"
+        self.already_running_message = "❌️Уже запущено"
 
-    async def client_ready(self, client, db):
-        self.events = []
-        self.db = db
+    @loader.unrestricted
+    async def runancmd(self, message: types.Message):
+        """Запускает отправку сообщения 'Получить карту' каждые 4 часа"""
+        if self.running:
+            await utils.answer(message, self.already_running_message)
+            return
+        self.running = True
 
-    async def watcher(self, message):
-        if self.db.get("AKFarmer", "status1") and message.sender_id in self.db.get("AKFarmer", "whitelist", []):
-            if "Получить карту" in message.message:
-                self.db["AKFarmer", "waituntil"] = time.time() + 14400
-                await message.respond("Получить карту")
+        await utils.answer(message, self.success_message)
 
-    async def akoncmd(self, message):
-        """Запустить фарм"""
-        if not self.db.get("AKFarmer", "status1"):
-            self.db.set("AKFarmer", "status1", True)
-            self.db.set("AKFarmer", "whitelist", [])
-            await utils.answer(message, "<b>✅ Запущено</b>")
-            while self.db.get("AKFarmer", "status1"):
-                if time.time() > self.db.get("AKFarmer", "waituntil", 0):
-                    await message.respond("Получить карту")
-                await sleep(60 * 60 * 4)
-        else:
-            await utils.answer(message, "<b>⚠️ Фарм уже запущен</b>")
+        while self.running:
+            await message.client(functions.messages.SendMessageRequest(
+                peer='aniversecard_bot',
+                message='⚙️ Настройки'
+            ))
 
-    async def akoffcmd(self, message):
-        """Закончить фарм"""
-        if self.db.get("AKFarmer", "status1"):
-            self.db.set("AKFarmer", "status1", False)
-            await utils.answer(message, "<b>❌ Остановлено</b>")
-        else:
-            await utils.answer(message, "<b>⚠️ Фарм не запущен</b>")
+            # Ожидание ответа от бота
+            response = await self._wait_for_response(message.client, 'aniversecard_bot', ['🪪 Твой ник:', '🆔 Твой айди:', '🥡 Количество круток:'])
+            if response and '🥡 Количество круток:' in response.message:
+                try:
+                    num_of_spins = int(response.message.split("🥡 Количество круток:")[1].strip())
+                except ValueError:
+                    num_of_spins = 0
+
+                for _ in range(num_of_spins):
+                    await message.client(functions.messages.SendMessageRequest(
+                        peer='aniversecard_bot',
+                        message='Получить карту'
+                    ))
+                    await asyncio.sleep(10)
+
+            await asyncio.sleep(4 * 60 * 60)
+
+    @loader.unrestricted
+    async def stopnancmd(self, message: types.Message):
+        """Останавливает отправку сообщения 'Получить карту'"""
+        if not self.running:
+            await utils.answer(message, "❌️Отправка уже остановлена.")
+            return
+        self.running = False
+        await utils.answer(message, "✔️Отправка остановлена.")
+
+    @loader.unrestricted
+    async def command(self, message: types.Message):
+        """Отправляет сообщение 'Получить карту' боту @aniversecard_bot"""
+        await message.client(functions.messages.SendMessageRequest(
+            peer='aniversecard_bot',
+            message='Получить карту'
+        ))
+
+    async def _wait_for_response(self, client, peer, expected_messages):
+        async for event in client.iter_messages(peer):
+            if event.message in expected_messages:
+                return event
