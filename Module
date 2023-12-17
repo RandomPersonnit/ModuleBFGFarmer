@@ -3,15 +3,15 @@
 # ( o.o )  🔓 Not licensed.
 #  > ^ <   ⚠️ Owner of heta.hikariatama.ru doesn't take any responsibilities or intellectual property rights regarding this script
 # ---------------------------------------------------------------------------------
-# Name: BFGMod
+# Name: BFGFarmer
 # Description: Send mes
-# Author: trololo65
+# Author: @Tirandomperson
 # Commands:
 # .bbton | .bbtoff | .bfgon | .bfgoff
 # ---------------------------------------------------------------------------------
 
 
-# meta developer: @trololo_1
+# meta developer: @Tirandomperson
 
 from asyncio import sleep
 
@@ -21,7 +21,7 @@ from .. import loader, utils
 class BFGMod(loader.Module):
     """Send mes"""
 
-    strigs = {"name": "BFGMod"}
+    strigs = {"name": "BFGFarmer"}
 
     async def client_ready(self, client, db):
         self.db = db
@@ -29,14 +29,14 @@ class BFGMod(loader.Module):
     async def bbtoncmd(self, message):
         """ """
         await utils.answer(message, "<b>Запущено</b>")
-        status = self.db.set("BFGMod", "status1", True)
+        status = self.db.set("BFGFarmer", "status1", True)
         while status:
             for i in range(15):
-                if not self.db.get("BFGMod", "status1"):
+                if not self.db.get("BFGFarmer", "status1"):
                     return
-                await message.respond("10")
+                await message.respond("Собирать снежки")
                 await sleep(2)
-            status = self.db.get("BFGMod", "status1")
+            status = self.db.get("BFGFarmer", "status1")
             await message.respond("🚀Оценивать")
 
     async def bbtoffcmd(self, message):
@@ -47,15 +47,15 @@ class BFGMod(loader.Module):
     async def bfgoncmd(self, message):
         """ """
         await utils.answer(message, "<b>Запущено</b>")
-        status = self.db.set("BFGMod", "status2", True)
+        status = self.db.set("BFGFarmer", "status2", True)
         while status:
-            await message.respond("копать материю")
+            await message.respond("копать изумруды")
             await sleep(60 * 5)
-            status = self.db.get("BFGMod", "status2")
+            status = self.db.get("BFGFarmer", "status2")
             if not status:
                 return
 
     async def bfgoffcmd(self, message):
         """ """
-        self.db.set("BFGMod", "status2", False)
+        self.db.set("BFGFarmer", "status2", False)
         await utils.answer(message, "<b>Остановлено</b>")
