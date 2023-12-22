@@ -3,11 +3,11 @@
 # ( o.o )  🔓 Not licensed.
 #  > ^ <   ⚠️ Owner of heta.hikariatama.ru doesn't take any responsibilities or intellectual property rights regarding this script
 # ---------------------------------------------------------------------------------
-# Name: AKFarmer
+# Name: BFGAuto
 # Description: Send mes
 # Author: @Tirandomperson
 # Commands:
-# .akon | .akoff
+# .bonso | .bonsl | .bonna
 # ---------------------------------------------------------------------------------
 
 
@@ -22,66 +22,94 @@ from .. import loader, utils
 
 @loader.tds
 class SendMessageModule(loader.Module):
-    """Модуль для автоматического получения карт каждые 4 часа в боте @Aniversecard_bot"""
+    """Модуль для автоматического фарма снежинок и снежков каждый час"""
 
-    strings = {"name": "AniverseAuto"}
+    strings = {"name": "BFGAuto"}
 
     def __init__(self):
-        self.running = False
+        self.running_sobrat = False
+        self.running_slepit = False
+        self.running_nayti = False
         self.success_message = "<b>🏗Успешно запущено<b>"
-        self.already_running_message = "❌️Уже запущено"
+        self.already_running_sobrat_message = "❌️Уже запущено команду 'Собрать снежинки'"
+        self.already_running_slepit_message = "❌️Уже запущено команду 'Слепить снежок'"
+        self.already_running_nayti_message = "❌️Уже запущено команду 'Найти снежинки'"
+
 
     @loader.unrestricted
-    async def runancmd(self, message: types.Message):
-        """Запускает отправку сообщения 'Получить карту' каждые 4 часа"""
-        if self.running:
-            await utils.answer(message, self.already_running_message)
+    async def bboncmd(self, message: types.Message):
+        """Запускает отправку команды 'Собрать снежинки' каждые 50 минут"""
+        if self.running_sobrat:
+            await utils.answer(message, self.already_running_sobrat_message)
             return
-        self.running = True
+        self.running_sobrat = True
 
         await utils.answer(message, self.success_message)
 
-        while self.running:
+        while self.running_sobrat:
             await message.client(functions.messages.SendMessageRequest(
-                peer='aniversecard_bot',
-                message='⚙️ Настройки'
+                peer='@bforgame_bot',
+                message='Собрать снежинки'
             ))
-
-            # Ожидание ответа от бота
-            response = await self._wait_for_response(message.client, 'aniversecard_bot', ['🪪 Твой ник:', '🆔 Твой айди:', '🥡 Количество круток:'])
-            if response and '🥡 Количество круток:' in response.message:
-                try:
-                    num_of_spins = int(response.message.split("🥡 Количество круток:")[1].strip())
-                except ValueError:
-                    num_of_spins = 0
-
-                for _ in range(num_of_spins):
-                    await message.client(functions.messages.SendMessageRequest(
-                        peer='aniversecard_bot',
-                        message='Получить карту'
-                    ))
-                    await asyncio.sleep(10)
-
-            await asyncio.sleep(4 * 60 * 60)
+            await asyncio.sleep(50 * 60)
 
     @loader.unrestricted
-    async def stopnancmd(self, message: types.Message):
-        """Останавливает отправку сообщения 'Получить карту'"""
-        if not self.running:
-            await utils.answer(message, "❌️Отправка уже остановлена.")
+    async def bboffcmd(self, message: types.Message):
+        """Останавливает отправку команды 'Собрать снежинки'"""
+        if not self.running_sobrat:
+            await utils.answer(message, "❌️Отправка команды 'Собрать снежинки' уже остановлена.")
             return
-        self.running = False
-        await utils.answer(message, "✔️Отправка остановлена.")
+        self.running_sobrat = False
+        await utils.answer(message, "✔️Отправка команды 'Собрать снежинки' остановлена.")
 
     @loader.unrestricted
-    async def command(self, message: types.Message):
-        """Отправляет сообщение 'Получить карту' боту @aniversecard_bot"""
-        await message.client(functions.messages.SendMessageRequest(
-            peer='aniversecard_bot',
-            message='Получить карту'
-        ))
+    async def bonslcmd(self, message: types.Message):
+        """Запускает отправку команды 'Слепить снежок' каждые 50 минут"""
+        if self.running_slepit:
+            await utils.answer(message, self.already_running_slepit_message)
+            return
+        self.running_slepit = True
 
-    async def _wait_for_response(self, client, peer, expected_messages):
-        async for event in client.iter_messages(peer):
-            if event.message in expected_messages:
-                return event
+        await utils.answer(message, self.success_message)
+
+        while self.running_slepit:
+            await message.client(functions.messages.SendMessageRequest(
+                peer='@bforgame_bot',
+                message='Слепить снежок'
+            ))
+            await asyncio.sleep(50 * 60)
+
+    @loader.unrestricted
+    async def bonoffcmd(self, message: types.Message):
+        """Останавливает отправку команды 'Слепить снежок'"""
+        if not self.running_slepit:
+            await utils.answer(message, "❌️Отправка команды 'Слепить снежок' уже остановлена.")
+            return
+        self.running_slepit = False
+        await utils.answer(message, "✔️Отправка команды 'Слепить снежок' остановлена.")
+
+    @loader.unrestricted
+    async def bonnacmd(self, message: types.Message):
+        """Запускает отправку команды 'Найти снежинки' каждые 16 минут"""
+        if self.running_nayti:
+            await utils.answer(message, self.already_running_nayti_message)
+            return
+        self.running_nayti = True
+
+        await utils.answer(message, self.success_message)
+
+        while self.running_nayti:
+            await message.client(functions.messages.SendMessageRequest(
+                peer='@bforgame_bot',
+                message='Найти снежинки'
+            ))
+            await asyncio.sleep(16 * 60)
+
+    @loader.unrestricted
+    async def bonoffcmd(self, message: types.Message):
+        """Останавливает отправку команды 'Найти снежинки'"""
+        if not self.running_nayti:
+            await utils.answer(message, "❌️Отправка команды 'Найти снежинки' уже остановлена.")
+            return
+        self.running_nayti = False
+        await utils.answer(message, "✔️Отправка команды 'Найти снежинки' остановлена.")
