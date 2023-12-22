@@ -35,7 +35,6 @@ class SendMessageModule(loader.Module):
         self.already_running_slepit_message = "❌️Уже запущено команду 'Слепить снежок'"
         self.already_running_nayti_message = "❌️Уже запущено команду 'Найти снежинки'"
 
-
     @loader.unrestricted
     async def bboncmd(self, message: types.Message):
         """Запускает отправку команды 'Собрать снежинки' каждые 50 минут"""
@@ -80,7 +79,7 @@ class SendMessageModule(loader.Module):
             await asyncio.sleep(50 * 60)
 
     @loader.unrestricted
-    async def bonoffcmd(self, message: types.Message):
+    async def boffslcmd(self, message: types.Message):
         """Останавливает отправку команды 'Слепить снежок'"""
         if not self.running_slepit:
             await utils.answer(message, "❌️Отправка команды 'Слепить снежок' уже остановлена.")
@@ -100,12 +99,19 @@ class SendMessageModule(loader.Module):
 
         while self.running_nayti:
             await message.client(functions.messages.SendMessageRequest(
-                peer='@bforgame_bot',
+                peer='@ichigochat',
                 message='Найти снежинки'
             ))
             await asyncio.sleep(16 * 60)
 
     @loader.unrestricted
+    async def bonoffcmd(self, message: types.Message):
+        """Останавливает отправку команды 'Найти снежинки'"""
+        if not self.running_nayti:
+            await utils.answer(message, "❌️Отправка команды 'Найти снежинки' уже остановлена.")
+            return
+        self.running_nayti = False
+        await utils.answer(message, "✔️Отправка команды 'Найти снежинки' остановлена.")
     async def bonoffcmd(self, message: types.Message):
         """Останавливает отправку команды 'Найти снежинки'"""
         if not self.running_nayti:
