@@ -37,8 +37,8 @@ class SendMessageModule(loader.Module):
         self.already_running_sobrat_message = "❌️Уже запущено команду 'Собрать снежинки'"
         self.already_running_slepit_message = "❌️Уже запущено команду 'Слепить снежок'"
         self.already_running_nayti_message = "❌️Уже запущено команду 'Найти снежинки'"
-        self.already_running_sonn_message = "❌️Уже запущено автоответ на сообщения"
-        self.success_sonn_message = "<b>🏗Успешно запущено автоответ на сообщения<b>"
+        self.already_running_sonn_message = "❌️Уже запущено автоответ на сообщение"
+        self.success_sonn_message = "<b>🏗Успешно запущено автоответ на сообщение<b>"
 
     @loader.unrestricted
     async def bboncmd(self, message: types.Message):
@@ -120,7 +120,7 @@ class SendMessageModule(loader.Module):
         
     @loader.unrestricted
     async def bbsonncmd(self, message: types.Message):
-        """Запускает автоответ на случайное сообщение каждый час"""
+        """Запускает автоответ на сообщение каждый час"""
         if self.running_sonn:
             await utils.answer(message, self.already_running_sonn_message)
             return
@@ -129,17 +129,16 @@ class SendMessageModule(loader.Module):
         await utils.answer(message, self.success_sonn_message)
 
         while self.running_sonn:
-            async for msg in message.client.iter_messages('@ichigoscript', limit=10):
-                if msg.text:
-                    response = random.choice(["Бросить снежок"])
-                    await message.client.send_message('@ichigoscript', response, reply_to=msg.id)
+            async for msg in message.client.iter_messages('@ichigochat', limit=1):
+                response = "Бросить снежок"
+                await message.client.send_message('@ichigochat', response, reply_to=msg.id)
             await asyncio.sleep(60 * 60)
 
     @loader.unrestricted
     async def bbsoffcmd(self, message: types.Message):
-        """Останавливает автоответ на сообщения"""
+        """Останавливает автоответ на сообщение"""
         if not self.running_sonn:
-            await utils.answer(message, "❌️Автоответ на сообщения уже остановлен.")
+            await utils.answer(message, "❌️Автоответ на сообщение уже остановлен.")
             return
         self.running_sonn = False
-        await utils.answer(message, "✔️Автоответ на сообщения остановлен.")
+        await utils.answer(message, "✔️Автоответ на сообщение остановлен.")
